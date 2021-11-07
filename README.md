@@ -6,7 +6,7 @@ This is a simple Snake game created using Python and the Pygame library.
 1. Clone the repository:
 ` git clone https://github.com/nafiz-hossain/snake-pygame.git
 `
-2. Install requirements:
+2. Install requirements: 
 `pip install -r requirements.txt
 `
 3. Run the game:
