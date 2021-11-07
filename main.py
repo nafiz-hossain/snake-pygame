@@ -5,10 +5,9 @@ import random
 pygame.init()
 
 # Colors
-white = (255, 255, 255)
+green = (0, 128, 0)
 red = (213, 50, 80)
-green = (0, 255, 0)
-blue = (50, 153, 213)
+white = (255, 255, 255)
 
 # Display configurations
 dis_width = 800
@@ -19,26 +18,36 @@ pygame.display.set_caption('Snake Game')
 clock = pygame.time.Clock()
 
 snake_block = 20
-snake_speed = 20
 
 font_style = pygame.font.SysFont(None, 50)
 
 bg_img = pygame.image.load('background.png')
 food_img = pygame.image.load('food.png')
-#food_img = pygame.transform.scale(food_img,(1,1))
+food_img = pygame.transform.scale(food_img, (snake_block + 5, snake_block + 5))
 
-# Set size of food image
-food_img = pygame.transform.scale(food_img, (snake_block+5, snake_block+5))
 
-def message(msg, color):
-    mesg = font_style.render(msg, True, color)
+def message(msg, text_color, bg_color):
+    mesg = font_style.render(msg, True, text_color)
     dis.blit(mesg, [dis_width / 6, dis_height / 3])
+    pygame.display.update()
+
 
 def snake(snake_block, snake_list):
     for segment in snake_list:
-        pygame.draw.rect(dis, green, [segment[0], segment[1], snake_block, snake_block])
+        pygame.draw.rect(dis, white, [segment[0], segment[1], snake_block, snake_block])
+
+
+def your_score(score):
+    value = font_style.render("Your Score: " + str(score), True, white)
+    dis.blit(value, [0, 0])
+
 
 def gameLoop():
+    global snake_speed  # Declare snake_speed as global
+
+    snake_speed = 10  # Initial snake speed
+    speed_increment = 0  # Speed increment when snake eats food
+
     game_over = False
     game_close = False
 
@@ -54,11 +63,14 @@ def gameLoop():
     foodx = round(random.randrange(0, dis_width - snake_block) / 20.0) * 20.0
     foody = round(random.randrange(0, dis_height - snake_block) / 20.0) * 20.0
 
-    while not game_over:
+    score = 0
 
-        while game_close == True:
-            dis.fill(blue)
-            message("You Lost! Press Q-Quit or C-Play Again", red)
+    last_key_pressed = None  # Store the last key pressed
+
+    while not game_over:
+        while game_close:
+            dis.fill(green)
+            message("You Lost! Press Q-Quit or C-Play Again", white, green)
             pygame.display.update()
 
             for event in pygame.event.get():
@@ -73,18 +85,22 @@ def gameLoop():
             if event.type == pygame.QUIT:
                 game_over = True
             if event.type == pygame.KEYDOWN:
-                if event.key == pygame.K_LEFT:
+                if event.key == pygame.K_LEFT and last_key_pressed != pygame.K_RIGHT:  # Check for opposite direction
                     x1_change = -snake_block
                     y1_change = 0
-                elif event.key == pygame.K_RIGHT:
+                    last_key_pressed = pygame.K_LEFT
+                elif event.key == pygame.K_RIGHT and last_key_pressed != pygame.K_LEFT:
                     x1_change = snake_block
                     y1_change = 0
-                elif event.key == pygame.K_UP:
+                    last_key_pressed = pygame.K_RIGHT
+                elif event.key == pygame.K_UP and last_key_pressed != pygame.K_DOWN:
                     y1_change = -snake_block
                     x1_change = 0
-                elif event.key == pygame.K_DOWN:
+                    last_key_pressed = pygame.K_UP
+                elif event.key == pygame.K_DOWN and last_key_pressed != pygame.K_UP:
                     y1_change = snake_block
                     x1_change = 0
+                    last_key_pressed = pygame.K_DOWN
 
         if x1 >= dis_width or x1 < 0 or y1 >= dis_height or y1 < 0:
             game_close = True
@@ -104,6 +120,8 @@ def gameLoop():
                 game_close = True
 
         snake(snake_block, snake_list)
+        your_score(length_of_snake - 1)
+ 
 
         pygame.display.update()
 
@@ -111,6 +129,10 @@ def gameLoop():
             foodx = round(random.randrange(0, dis_width - snake_block) / 20.0) * 20.0
             foody = round(random.randrange(0, dis_height - snake_block) / 20.0) * 20.0
             length_of_snake += 1
+            score += 1
+            # Increase snake speed when it eats food
+            snake_speed += speed_increment
+            
 
         clock.tick(snake_speed)
 
