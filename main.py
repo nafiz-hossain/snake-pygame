@@ -46,7 +46,7 @@ def gameLoop():
     global snake_speed  # Declare snake_speed as global
 
     snake_speed = 10  # Initial snake speed
-    speed_increment = 0  # Speed increment when snake eats food
+    speed_increment = 1  # Speed increment when snake eats food
 
     game_over = False
     game_close = False
@@ -133,7 +133,7 @@ def gameLoop():
             # Increase snake speed when it eats food
             snake_speed += speed_increment
             
-
+            
         clock.tick(snake_speed)
 
     pygame.quit()
